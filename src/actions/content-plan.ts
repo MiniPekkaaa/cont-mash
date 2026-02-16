@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import type { ContentPlanFormData } from "@/types";
+import type { ContentPlanFormData, SocialNetwork } from "@/types";
 
 async function getUserId(): Promise<string> {
     const session = await auth();
@@ -59,10 +59,10 @@ export async function getContentPlans() {
     });
 }
 
-export async function getSocialNetworks() {
+export async function getSocialNetworks(): Promise<SocialNetwork[]> {
     return db.socialNetwork.findMany({
         orderBy: { id: "asc" },
-    });
+    }) as Promise<SocialNetwork[]>;
 }
 
 export async function generateContentPlanPosts(contentPlanId: string) {
