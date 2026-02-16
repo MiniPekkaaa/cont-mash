@@ -1,21 +1,4 @@
 services:
-  db:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-contentmachine}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      POSTGRES_DB: ${POSTGRES_DB:-contentmachine}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${DB_PORT:-5432}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-contentmachine}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   app:
     build:
       context: .
@@ -24,14 +7,8 @@ services:
     ports:
       - "${APP_PORT:-8007}:3000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-contentmachine}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-contentmachine}?schema=public
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:8007}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://supabase_admin:otlehjoq@db.3r.agency:33770/content-machine?schema=public}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://45.95.234.34:8007}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-supersecretkey_change_in_production}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-    depends_on:
-      db:
-        condition: service_healthy
-
-volumes:
-  postgres_data:
