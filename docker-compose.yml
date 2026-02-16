@@ -8,7 +8,8 @@ services:
       - "${APP_PORT:-8007}:3000"
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql://supabase_admin:otlehjoq@db.3r.agency:33770/content-machine?schema=public}
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://45.95.234.34:8007}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://139.60.161.156:8007}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-supersecretkey_change_in_production}
+      AUTH_TRUST_HOST: "true"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
