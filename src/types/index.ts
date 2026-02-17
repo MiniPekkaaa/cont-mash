@@ -88,3 +88,13 @@ export const DAYS_OF_WEEK = [
     { value: 6, label: "Сб", full: "Суббота" },
     { value: 0, label: "Вс", full: "Воскресенье" },
 ];
+
+export type PlanDuration = "2weeks" | "1month" | "2months" | "3months";
+
+export const PLAN_DURATIONS: { value: PlanDuration; label: string; shortLabel: string; days: number }[] = [
+    { value: "2weeks", label: "2 недели", shortLabel: "2 нед", days: 14 },
+    { value: "1month", label: "1 месяц", shortLabel: "1 мес", days: 30 },
+    { value: "2months", label: "2 месяца", shortLabel: "2 мес", days: 60 },
+    { value: "3months", label: "3 месяца", shortLabel: "3 мес", days: 90 },
+];
+

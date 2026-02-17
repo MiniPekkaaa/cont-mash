@@ -9,25 +9,16 @@ export default async function ContentPlanPage() {
     ]);
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-foreground">Создание контент-плана</h1>
-                <p className="mt-1 text-muted-foreground">
-                    Настройте параметры и сгенерируйте контент-план с помощью AI
-                </p>
-            </div>
-
-            <ContentPlanForm
-                socialNetworks={socialNetworks}
-                rubrics={rubrics.map((r) => ({
-                    id: r.id,
-                    name: r.name,
-                    description: r.description,
-                    postsPerMonth: r.postsPerMonth,
-                    sortOrder: r.sortOrder,
-                    isActive: r.isActive,
-                }))}
-            />
-        </div>
+        <ContentPlanForm
+            socialNetworks={socialNetworks}
+            rubrics={rubrics.map((r) => ({
+                id: r.id,
+                name: r.name,
+                description: r.description,
+                postsPerMonth: r.postsPerMonth,
+                sortOrder: r.sortOrder,
+                isActive: r.isActive,
+            }))}
+        />
     );
 }

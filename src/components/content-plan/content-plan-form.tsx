@@ -3,13 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Sparkles, CalendarDays, MessageSquare } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { createContentPlan, generateContentPlanPosts } from "@/actions/content-plan";
-import { SocialNetworkPicker } from "@/components/content-plan/social-network-picker";
-import { RubricsSelector } from "@/components/content-plan/rubrics-selector";
-import { FrequencyPicker } from "@/components/content-plan/frequency-picker";
-import { AIModelSelector } from "@/components/content-plan/ai-model-selector";
-import type { SocialNetwork, RubricData, AIProvider as AIProviderType } from "@/types";
+import { ContentPlanToolbar } from "@/components/content-plan/content-plan-toolbar";
+import { RubricTags } from "@/components/content-plan/rubric-tags";
+import { ChatInput } from "@/components/content-plan/chat-input";
+import type { SocialNetwork, RubricData, AIProvider as AIProviderType, PlanDuration } from "@/types";
 
 interface ContentPlanFormProps {
     socialNetworks: SocialNetwork[];
@@ -29,6 +28,7 @@ export function ContentPlanForm({ socialNetworks, rubrics }: ContentPlanFormProp
     const [startDate, setStartDate] = useState(
         new Date().toISOString().split("T")[0]
     );
+    const [duration, setDuration] = useState<PlanDuration>("1month");
     const [wishes, setWishes] = useState("");
     const [aiProvider, setAIProvider] = useState<AIProviderType>("openai");
     const [aiModel, setAIModel] = useState("gpt-5.2");
@@ -74,117 +74,82 @@ export function ContentPlanForm({ socialNetworks, rubrics }: ContentPlanFormProp
     };
 
     return (
-        <div className="mx-auto max-w-3xl space-y-6">
-            {/* Social Networks */}
-            <section className="rounded-xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground flex items-center gap-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-sm">📱</span>
-                    Социальные сети
-                </h2>
-                <SocialNetworkPicker
-                    networks={socialNetworks}
-                    selected={selectedNetworks}
-                    onChange={setSelectedNetworks}
-                />
-            </section>
+        <div className="flex h-[calc(100vh-8rem)] flex-col">
+            {/* Empty state / hero area */}
+            <div className="flex flex-1 flex-col items-center justify-center px-4">
+                {isPending ? (
+                    <div className="flex flex-col items-center gap-4 animate-fade-in">
+                        <div className="relative">
+                            <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                <Sparkles className="h-8 w-8 text-primary animate-glow-pulse" />
+                            </div>
+                            <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl animate-glow-pulse" />
+                        </div>
+                        <div className="text-center">
+                            <p className="text-lg font-medium text-foreground">Генерируем контент-план...</p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                AI анализирует параметры и создаёт посты
+                            </p>
+                        </div>
+                        <div className="flex gap-1.5">
+                            <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
+                            <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
+                            <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-4 opacity-40">
+                        <div className="h-20 w-20 rounded-2xl bg-surface flex items-center justify-center">
+                            <Sparkles className="h-10 w-10 text-muted-foreground" />
+                        </div>
+                        <div className="text-center max-w-md">
+                            <p className="text-base font-medium text-muted-foreground">
+                                Настройте параметры и опишите тему
+                            </p>
+                            <p className="mt-1 text-sm text-muted">
+                                Выберите соцсети, рубрики, частоту и AI модель в панели ниже
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-            {/* Rubrics */}
-            <section className="rounded-xl border border-border bg-card p-6">
-                <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-sm">📋</span>
-                        Ключевые рубрики
-                    </h2>
-                    <a
-                        href="/content-plan/rubrics"
-                        className="text-sm text-primary hover:text-primary-hover transition-colors cursor-pointer"
-                    >
-                        Настроить рубрики →
-                    </a>
-                </div>
-                <RubricsSelector
+            {/* Bottom control area */}
+            <div className="mx-auto w-full max-w-3xl space-y-3 pb-4">
+                {/* Rubric tags */}
+                <RubricTags
                     rubrics={rubrics}
                     selected={selectedRubrics}
                     onChange={setSelectedRubrics}
                 />
-            </section>
 
-            {/* Frequency */}
-            <section className="rounded-xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground flex items-center gap-2">
-                    <CalendarDays className="h-5 w-5 text-primary" />
-                    Частота публикаций
-                </h2>
-                <FrequencyPicker
+                {/* Toolbar */}
+                <ContentPlanToolbar
+                    networks={socialNetworks}
+                    selectedNetworks={selectedNetworks}
+                    onNetworksChange={setSelectedNetworks}
+                    startDate={startDate}
+                    onStartDateChange={setStartDate}
+                    duration={duration}
+                    onDurationChange={setDuration}
                     postsPerWeek={postsPerWeek}
                     publishDays={publishDays}
                     onPostsPerWeekChange={setPostsPerWeek}
                     onPublishDaysChange={setPublishDays}
-                />
-            </section>
-
-            {/* Start Date */}
-            <section className="rounded-xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground flex items-center gap-2">
-                    <CalendarDays className="h-5 w-5 text-primary" />
-                    Желаемая дата начала
-                </h2>
-                <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                    className="w-full max-w-xs rounded-lg border border-border bg-surface px-4 py-2.5 text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-            </section>
-
-            {/* AI Model */}
-            <section className="rounded-xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    AI Модель
-                </h2>
-                <AIModelSelector
-                    provider={aiProvider}
-                    model={aiModel}
+                    aiProvider={aiProvider}
+                    aiModel={aiModel}
                     onProviderChange={setAIProvider}
                     onModelChange={setAIModel}
                 />
-            </section>
 
-            {/* Wishes */}
-            <section className="rounded-xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-primary" />
-                    Пожелания к контент-плану
-                </h2>
-                <textarea
+                {/* Chat input */}
+                <ChatInput
                     value={wishes}
-                    onChange={(e) => setWishes(e.target.value)}
-                    placeholder="Хочу контент-план по теме анализа своих достижений, с акцентом на мотивацию..."
-                    rows={4}
-                    className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground placeholder-muted transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                    onChange={setWishes}
+                    onSubmit={handleSubmit}
+                    isPending={isPending}
                 />
-            </section>
-
-            {/* Submit */}
-            <button
-                onClick={handleSubmit}
-                disabled={isPending}
-                className="w-full cursor-pointer rounded-xl bg-primary px-6 py-4 text-lg font-semibold text-primary-foreground transition-all hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-3 shadow-lg shadow-primary/20"
-            >
-                {isPending ? (
-                    <>
-                        <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                        Генерация...
-                    </>
-                ) : (
-                    <>
-                        <Sparkles className="h-5 w-5" />
-                        Сгенерировать контент-план
-                    </>
-                )}
-            </button>
+            </div>
         </div>
     );
 }
