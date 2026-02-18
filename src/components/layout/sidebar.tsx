@@ -14,6 +14,7 @@ import {
     Zap,
     ChevronDown,
     MessageCircle,
+    BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -27,6 +28,7 @@ const mainNav = [
 const contentNav = [
     { href: "/content-plan", label: "Контент-план", icon: FileText },
     { href: "/content-plan/rubrics", label: "Рубрики", icon: List },
+    { href: "/knowledge", label: "База знаний", icon: BookOpen },
 ];
 
 const settingsNav = [

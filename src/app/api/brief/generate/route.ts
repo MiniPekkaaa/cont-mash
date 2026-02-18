@@ -82,6 +82,13 @@ export async function POST(req: NextRequest) {
             data: { status: "completed", briefText },
         });
 
+        // Also save to KnowledgeBase (auto-appears on /knowledge page)
+        await db.knowledgeBase.upsert({
+            where: { userId: session.user.id },
+            create: { userId: session.user.id, briefText },
+            update: { briefText },
+        });
+
         // Save as assistant message too
         await db.briefMessage.create({
             data: {
